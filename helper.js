@@ -1,14 +1,17 @@
 const config = require('./config');
 const ethers = require('ethers');
 const input = require("input");
+require('dotenv').config();
 /**
-** Don't Change this file, change settings in config.js
-**/
+ ** Don't Change this file, change settings in config.js
+ **/
 
 
 async function getUserInput() {
-    const choices = ['Default', 'Buy All Tokens', 'Buy Only Low Liquidity Tokens 1-150 BNB', 'Buy Only Medium Liquidity Tokens 150-300 BNB', 'Buy Only High Liquidity Tokens 300-700 BNB', 'Custom Strategy']
-    const choices2 = ['COINMARKETCAP', 'COINGECKO'];
+    const choices = ['Default', 'Buy All Tokens', 'Buy Only Low Liquidity Tokens 1-90 BNB', 'Buy Only Medium Liquidity Tokens 150-300 BNB', 'Buy Only High Liquidity Tokens 300-700 BNB', 'Buy Strategy LL and ML', 'Custom Strategy']
+    const choices2 = ['COINMARKETCAP', 'COINGECKO', 'BOTH'];
+    const choices3 = ['Yes', 'No'];
+    const nodes = [`Node 1: ${process.env.node}` , `Node 2: ${process.env.node2}`, `Node 3: ${process.env.node3}`];
     const channelChoices = ['CoinGecko & CoinMarketCap Listing Alerts', 'Coinmarketcap Fastest Alerts'];
     await input.select('Welcome, please choose a buying strategy', choices).then(async function (answers) {
         if (answers == 'Buy All Tokens') {
@@ -23,8 +26,7 @@ async function getUserInput() {
             await input.select('Choose a channel to buy from', channelChoices).then(async function (channelAnswer) {
                 if (channelAnswer == "CoinGecko & CoinMarketCap Listing Alerts") {
                     config.channel = 'CGCMC'
-                }
-                else {
+                } else {
                     config.channel = 'CFA'
                 }
             });
@@ -47,14 +49,14 @@ async function getUserInput() {
                     config.channel = 'CGCMC'
                     await input.select('Choose coinmarketcap or coingecko', choices2).then(async function (answers2) {
                         if (answers2 == "COINMARKETCAP") {
-                            config.strategyLL.platform = "COINMARKETCAP";
-                        }
-                        else {
-                            config.strategyLL.platform = "COINGECKO";
+                            config.strategyML.platform = "COINMARKETCAP";
+                        } else if (answers2 == "BOTH") {
+                            config.strategyML.platform = "BOTH";
+                        } else {
+                            config.strategyML.platform = "COINGECKO";
                         }
                     });
-                }
-                else {
+                } else {
                     config.channel = 'CFA'
                 }
             });
@@ -78,13 +80,13 @@ async function getUserInput() {
                     await input.select('Choose coinmarketcap or coingecko', choices2).then(async function (answers2) {
                         if (answers2 == "COINMARKETCAP") {
                             config.strategyML.platform = "COINMARKETCAP";
-                        }
-                        else {
+                        } else if (answers2 == "BOTH") {
+                            config.strategyML.platform = "BOTH";
+                        } else {
                             config.strategyML.platform = "COINGECKO";
                         }
                     });
-                }
-                else {
+                } else {
                     config.channel = 'CFA'
                 }
             });
@@ -109,14 +111,14 @@ async function getUserInput() {
                     config.channel = 'CGCMC'
                     await input.select('Choose coinmarketcap or coingecko', choices2).then(async function (answers2) {
                         if (answers2 == "COINMARKETCAP") {
-                            config.strategyHL.platform = "COINMARKETCAP";
-                        }
-                        else {
-                            config.strategyHL.platform = "COINGECKO";
+                            config.strategyML.platform = "COINMARKETCAP";
+                        } else if (answers2 == "BOTH") {
+                            config.strategyML.platform = "BOTH";
+                        } else {
+                            config.strategyML.platform = "COINGECKO";
                         }
                     });
-                }
-                else {
+                } else {
                     config.channel = 'CFA'
                 }
             });
@@ -142,18 +144,77 @@ async function getUserInput() {
                     config.channel = 'CGCMC'
                     await input.select('Choose coinmarketcap or coingecko', choices2).then(async function (answers2) {
                         if (answers2 == "COINMARKETCAP") {
-                            config.customStrategy.platform = "COINMARKETCAP";
-                        }
-                        else {
-                            config.customStrategy.platform = "COINGECKO";
+                            config.strategyML.platform = "COINMARKETCAP";
+                        } else if (answers2 == "BOTH") {
+                            config.strategyML.platform = "BOTH";
+                        } else {
+                            config.strategyML.platform = "COINGECKO";
                         }
                     });
-                }
-                else {
+                } else {
                     config.channel = 'CFA'
                 }
             });
             config.userStrategy = 'Custom';
+        }
+        if (answers == "Buy Strategy LL and ML") {
+            console.log("THis Strategy Uses:")
+            console.log("The min liquidity of this strategy is: 20BNB and the max liquidity is: 150BNB")
+            config.numberOfTokensToBuy = parseInt(await input.text("Enter number of different tokens you want to buy"));
+            await input.select('Choose a node to use', nodes).then(async function (nodesAnswer) {
+                let nodeChoose = nodesAnswer.split(": ");
+                if(nodeChoose[0] == "Node 1") {
+                    config.node = nodeChoose[1];
+                } else if (nodeChoose[0] == "Node 2") {
+                    config.node = nodeChoose[1];
+                } else if (nodeChoose[0] == "Node 3") {
+                    config.node = nodeChoose[1];
+                };
+                console.log("You Choose: " + config.node);
+            });
+            config.Strategy.investmentAmount = await input.text("Enter Investment Amount in BNB");
+            config.Strategy.gasPrice = ethers.utils.parseUnits(await input.text("Enter Gas Price"), 'gwei');
+            config.Strategy.maxBuyTax = parseFloat(await input.text("Enter max buying tax"));
+            config.Strategy.minBuyTax = parseFloat(await input.text("Enter min buying tax"));
+            config.Strategy.maxSellTax = parseFloat(await input.text("Enter max sell tax"));
+            config.Strategy.profitPercent = parseFloat(await input.text("Enter profit percent you want"));
+            config.Strategy.stopLossPercent = parseFloat(await input.text("Enter max loss percent"));
+            config.Strategy.percentOfTokensToSellProfit = parseFloat(await input.text("Enter percent of tokens to sell when profit reached"));
+            config.Strategy.percentOfTokensToSellLoss = parseFloat(await input.text("Enter percent of tokens to sell when stop loss reached"));
+            let selectchoices = "Number of Tokens To Buy: " + config.numberOfTokensToBuy + " Investment Amount: " + config.Strategy.investmentAmount + " BNB";
+            selectchoices += " Profit Percent: " + config.Strategy.profitPercent + "% Min-Max Liquidity: " + config.Strategy.minLiquidity + "-" + config.Strategy.maxLiquidity;
+            selectchoices += " Min-Max Buy Tax: " + config.Strategy.minBuyTax + "-" + config.Strategy.maxBuyTax + " Stop Loss Percent: " + config.Strategy.stopLossPercent + "%";
+            await input.select(selectchoices + " Ïs Correct?", choices3).then(async function (answers) {
+                if (answers == "No") {
+                    config.numberOfTokensToBuy = parseInt(await input.text("Enter number of different tokens you want to buy"));
+                    config.Strategy.investmentAmount = await input.text("Enter Investment Amount in BNB");
+                    config.Strategy.gasPrice = ethers.utils.parseUnits(await input.text("Enter Gas Price"), 'gwei');
+                    config.Strategy.maxBuyTax = parseFloat(await input.text("Enter max buying tax"));
+                    config.Strategy.minBuyTax = parseFloat(await input.text("Enter min buying tax"));
+                    config.Strategy.maxSellTax = parseFloat(await input.text("Enter max sell tax"));
+                    config.Strategy.profitPercent = parseFloat(await input.text("Enter profit percent you want"));
+                    config.Strategy.stopLossPercent = parseFloat(await input.text("Enter max loss percent"));
+                    config.Strategy.percentOfTokensToSellProfit = parseFloat(await input.text("Enter percent of tokens to sell when profit reached"));
+                    config.Strategy.percentOfTokensToSellLoss = parseFloat(await input.text("Enter percent of tokens to sell when stop loss reached"));
+                }
+            });
+            await input.select('Choose a channel to buy from', channelChoices).then(async function (channelAnswer) {
+                if (channelAnswer == "CoinGecko & CoinMarketCap Listing Alerts") {
+                    config.channel = 'CGCMC'
+                    await input.select('Choose coinmarketcap or coingecko', choices2).then(async function (answers2) {
+                        if (answers2 == "COINMARKETCAP") {
+                            config.Strategy.platform = "COINMARKETCAP";
+                        } else if (answers2 == "BOTH") {
+                            config.Strategy.platform = "BOTH";
+                        } else {
+                            config.Strategy.platform = "COINGECKO";
+                        }
+                    });
+                } else {
+                    config.channel = 'CFA'
+                }
+            });
+            config.userStrategy = 'LLML';
         }
 
     });

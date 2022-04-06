@@ -16,21 +16,21 @@ const ethers = require('ethers');
  * 
  * **/
 module.exports.channel = 'CGCMC';   // CGCMC or CFA 
-module.exports.numberOfTokensToBuy = 10; // number of different tokens you want to buy
+module.exports.numberOfTokensToBuy = 2; // number of different tokens you want to buy
 
 module.exports.autoSell = true;  // If you want to auto sell or not 
 
-module.exports.myGasPriceForApproval = ethers.utils.parseUnits('6', 'gwei'); // Gas to approve and sell
+module.exports.myGasPriceForApproval = ethers.utils.parseUnits('10', 'gwei'); // Gas to approve and sell
 
 module.exports.myGasLimit = 1500000; // gas limit doesnt need to be changed if too low transaction will fail
 
-module.exports.userStrategy = 'BA'; // BA, LL, ML, HL or Custom.  // Choose your strategy
+module.exports.userStrategy = 'LL'; // BA, LL, ML, HL or Custom.  // Choose your strategy
 
+module.exports.node = ""; // Node to want you use change in ../.env
 
 /* Strategy for buying all tokens (BA) */
 module.exports.buyAllTokensStrategy = 
 {
-
     investmentAmount: '0.1', // Amount to invest per token in BNB
     gasPrice: ethers.utils.parseUnits('6', 'gwei'),
     profitPercent: 100,      // 100% profit
@@ -43,17 +43,17 @@ module.exports.buyAllTokensStrategy =
 /* Strategy for buying low-liquid tokens (LL) */
 module.exports.strategyLL =
 {
-    investmentAmount: '0.15', 	// Investment amount per token
-    maxBuyTax: 11, 			// max buy tax
+    investmentAmount: '0.05', 	// Investment amount per token
+    maxBuyTax: 2, 			// max buy tax
     minBuyTax: 0,			// min buy tax
-    maxSellTax: 11,			// max sell tax
-    maxLiquidity: 150,	        // max Liquidity BNB
+    maxSellTax: 2,			// max sell tax
+    maxLiquidity: 90,	        // max Liquidity BNB
     minLiquidity: 20, 	  	// min Liquidity BNB
-    profitPercent: 250,          // 2.5X
+    profitPercent: 80,          // 2.5X
     stopLossPercent: 30,        // 30% loss
     platform: "COINMARKETCAP",      // Either COINMARKETCAP or COINGECKO
-    gasPrice: ethers.utils.parseUnits('7', 'gwei'), // Gas Price. Higher is better for low liquidity
-    percentOfTokensToSellProfit: 75, // sell 75% when profit is reached
+    gasPrice: ethers.utils.parseUnits('10', 'gwei'), // Gas Price. Higher is better for low liquidity
+    percentOfTokensToSellProfit: 100, // sell 75% when profit is reached
     percentOfTokensToSellLoss: 100, // sell 100% when stoploss is reached 
     trailingStopLossPercent: 20 // % trailing stoploss
 }
@@ -70,7 +70,7 @@ module.exports.strategyML =
     profitPercent: 80,          // 80% profit
     stopLossPercent: 20,        // 20% loss
     platform: "COINMARKETCAP",          // Either COINMARKETCAP or COINGECKO
-    gasPrice: ethers.utils.parseUnits('6', 'gwei'),
+    gasPrice: ethers.utils.parseUnits('8', 'gwei'),
     percentOfTokensToSellProfit: 75, // sell 75% when profit is reached
     percentOfTokensToSellLoss: 100, // sell 100% when stoploss is reached
     trailingStopLossPercent: 10 // % trailing stoploss
@@ -88,7 +88,7 @@ module.exports.strategyHL =
     profitPercent: 50,          // 50% profit
     stopLossPercent: 10,        // 10% loss
     platform: "COINMARKETCAP",      // Either COINMARKETCAP or COINGECKO
-    gasPrice: ethers.utils.parseUnits('6', 'gwei'),
+    gasPrice: ethers.utils.parseUnits('8', 'gwei'),
     percentOfTokensToSellProfit: 75, // sell 75% of tokens when profit is reached
     percentOfTokensToSellLoss: 100, // sell 100% of tokens when stoploss is reached
     trailingStopLossPercent: 10 // % trailing stoploss
@@ -106,9 +106,25 @@ module.exports.customStrategy =
     profitPercent: 50,          // 50% profit
     stopLossPercent: 10,        // 10% loss
     platform: "COINMARKETCAP",      // Either COINMARKETCAP or COINGECKO
-    gasPrice: ethers.utils.parseUnits('6', 'gwei'),
+    gasPrice: ethers.utils.parseUnits('10', 'gwei'),
     percentOfTokensToSellProfit: 75, // sell 75% of tokens when profit is reached
     percentOfTokensToSellLoss: 100, // sell 100% of tokens when stoploss is reached
     trailingStopLossPercent: 10 // % trailing stoploss
 }
 
+module.exports.Strategy =
+{
+    investmentAmount: '0.3', 	// Investment amount per token
+    maxBuyTax: 2,            	// max buy tax
+    minBuyTax: 0,			// min buy tax
+    maxSellTax: 5,			// max sell tax
+    maxLiquidity: 150,	   	// max Liquidity BNB
+    minLiquidity: 10, 	  	// min Liquidity BNB
+    profitPercent: 50,          // 50% profit
+    stopLossPercent: 10,        // 10% loss
+    platform: "COINMARKETCAP",      // Either COINMARKETCAP or COINGECKO
+    gasPrice: ethers.utils.parseUnits('10', 'gwei'),
+    percentOfTokensToSellProfit: 100, // sell 75% of tokens when profit is reached
+    percentOfTokensToSellLoss: 100, // sell 100% of tokens when stoploss is reached
+    trailingStopLossPercent: 10 // % trailing stoploss
+}
